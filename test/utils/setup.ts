@@ -56,14 +56,14 @@ export const describeWithFixture = (
       const domainRegistry = await DomainRegistryFactory.deploy();
       await domainRegistry.waitForDeployment();
 
-      const seaport = new Seaport(ethers.provider as any, {
+      const seaport = new Seaport(ethers.provider as any, undefined, {
         overrides: {
           contractAddress: await seaportContract.getAddress(),
           domainRegistryAddress: await domainRegistry.getAddress(),
         },
       });
       const [signer] = await ethers.getSigners();
-      const seaportWithSigner = new Seaport(signer as any, {
+      const seaportWithSigner = new Seaport(signer as any, undefined, {
         overrides: {
           contractAddress: await seaportContract.getAddress(),
           domainRegistryAddress: await domainRegistry.getAddress(),
