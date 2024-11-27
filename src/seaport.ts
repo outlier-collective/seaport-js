@@ -193,12 +193,14 @@ export class Seaport {
     exactApproval?: boolean,
   ): Promise<OrderUseCase<CreateOrderAction>> {
     const signer = await this._getSigner(accountAddress);
-    let offerer = accountAddress;
 
-    if (!!this.smartAccount && !!this.smartAccount.account) {
-      offerer = this.smartAccount.account.address;
-    } else {
-      offerer = await signer.getAddress();
+    let offerer = accountAddress;
+    if (!offerer) {
+      if (!!this.smartAccount && !!this.smartAccount.account) {
+        offerer = this.smartAccount.account.address;
+      } else {
+        offerer = await signer.getAddress();
+      }
     }
 
     const { orderComponents, approvalActions } = await this._formatOrder(
@@ -248,12 +250,14 @@ export class Seaport {
     exactApproval?: boolean,
   ): Promise<OrderUseCase<CreateBulkOrdersAction>> {
     const signer = await this._getSigner(accountAddress);
-    let offerer = accountAddress;
 
-    if (!!this.smartAccount && !!this.smartAccount.account) {
-      offerer = this.smartAccount.account.address;
-    } else {
-      offerer = await signer.getAddress();
+    let offerer = accountAddress;
+    if (!offerer) {
+      if (!!this.smartAccount && !!this.smartAccount.account) {
+        offerer = this.smartAccount.account.address;
+      } else {
+        offerer = await signer.getAddress();
+      }
     }
 
     const offererCounter = await this.getCounter(offerer);
