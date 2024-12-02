@@ -72,6 +72,8 @@ import {
   DomainRegistry__factory,
   Seaport__factory,
 } from "./typechain-types";
+import { Hex } from "viem";
+import { SmartAccountClient } from "permissionless";
 
 export class Seaport {
   // Provides the raw interface to the contract for flexibility
@@ -82,6 +84,8 @@ export class Seaport {
   private provider: Provider;
 
   private signer?: Signer;
+
+  private smartAccount?: SmartAccountClient;
 
   private config: Required<Omit<SeaportConfig, "overrides">> & {
     seaportVersion: string;
@@ -97,6 +101,7 @@ export class Seaport {
    */
   public constructor(
     providerOrSigner: JsonRpcProvider | Signer,
+    smartAccount?: SmartAccountClient,
     {
       overrides,
       // Five minute buffer
@@ -121,6 +126,8 @@ export class Seaport {
     }
 
     this.provider = provider;
+
+    this.smartAccount = smartAccount;
 
     const seaportVersion =
       overrides?.seaportVersion ?? SEAPORT_CONTRACT_VERSION_V1_6;
@@ -186,7 +193,15 @@ export class Seaport {
     exactApproval?: boolean,
   ): Promise<OrderUseCase<CreateOrderAction>> {
     const signer = await this._getSigner(accountAddress);
-    const offerer = accountAddress ?? (await signer.getAddress());
+
+    let offerer = accountAddress;
+    if (!offerer) {
+      if (!!this.smartAccount && !!this.smartAccount.account) {
+        offerer = this.smartAccount.account.address;
+      } else {
+        offerer = await signer.getAddress();
+      }
+    }
 
     const { orderComponents, approvalActions } = await this._formatOrder(
       signer,
@@ -235,7 +250,16 @@ export class Seaport {
     exactApproval?: boolean,
   ): Promise<OrderUseCase<CreateBulkOrdersAction>> {
     const signer = await this._getSigner(accountAddress);
-    const offerer = await signer.getAddress();
+
+    let offerer = accountAddress;
+    if (!offerer) {
+      if (!!this.smartAccount && !!this.smartAccount.account) {
+        offerer = this.smartAccount.account.address;
+      } else {
+        offerer = await signer.getAddress();
+      }
+    }
+
     const offererCounter = await this.getCounter(offerer);
 
     const allApprovalActions: ApprovalAction[] = [];
@@ -450,8 +474,8 @@ export class Seaport {
     return {
       name: SEAPORT_CONTRACT_NAME,
       version: this.config.seaportVersion,
-      chainId,
-      verifyingContract: await this.contract.getAddress(),
+      chainId: Number(chainId),
+      verifyingContract: (await this.contract.getAddress()) as Hex,
     };
   }
 
@@ -500,15 +524,26 @@ export class Seaport {
     orderComponents: OrderComponents,
     accountAddress?: string,
   ): Promise<string> {
-    const signer = await this._getSigner(accountAddress);
-
     const domainData = await this._getDomainData();
 
-    let signature = await signer.signTypedData(
-      domainData,
-      EIP_712_ORDER_TYPE,
-      orderComponents,
-    );
+    let signature = "";
+
+    if (!!this.smartAccount && !!this.smartAccount.account) {
+      signature = await this.smartAccount.signTypedData({
+        account: this.smartAccount.account,
+        domain: domainData,
+        types: EIP_712_ORDER_TYPE,
+        primaryType: "OrderComponents",
+        message: orderComponents,
+      });
+    } else {
+      const signer = await this._getSigner(accountAddress);
+      signature = await signer.signTypedData(
+        domainData,
+        EIP_712_ORDER_TYPE,
+        orderComponents,
+      );
+    }
 
     // Use EIP-2098 compact signatures to save gas.
     if (signature.length === 132) {
@@ -528,19 +563,26 @@ export class Seaport {
     orderComponents: OrderComponents[],
     accountAddress?: string,
   ): Promise<OrderWithCounter[]> {
-    const signer = await this._getSigner(accountAddress);
-
     const domainData = await this._getDomainData();
     const tree = getBulkOrderTree(orderComponents);
     const bulkOrderType = tree.types;
     const chunks = tree.getDataToSign();
     const value = { tree: chunks };
 
-    let signature = await signer.signTypedData(
-      domainData,
-      bulkOrderType,
-      value,
-    );
+    let signature = "";
+
+    if (!!this.smartAccount && !!this.smartAccount.account) {
+      signature = await this.smartAccount.signTypedData({
+        account: this.smartAccount.account,
+        domain: domainData,
+        types: bulkOrderType,
+        primaryType: "BulkOrder",
+        message: value,
+      });
+    } else {
+      const signer = await this._getSigner(accountAddress);
+      signature = await signer.signTypedData(domainData, bulkOrderType, value);
+    }
 
     // Use EIP-2098 compact signatures to save gas.
     if (signature.length === 132) {
@@ -815,7 +857,10 @@ export class Seaport {
 
     const fulfiller = await this._getSigner(accountAddress);
 
-    const fulfillerAddress = await fulfiller.getAddress();
+    const fulfillerAddress =
+      !!this.smartAccount && !!this.smartAccount.account
+        ? this.smartAccount.account.address
+        : await fulfiller.getAddress();
 
     const offererOperator =
       this.config.conduitKeyToConduit[orderParameters.conduitKey];
@@ -971,7 +1016,10 @@ export class Seaport {
 
     const fulfiller = await this._getSigner(accountAddress);
 
-    const fulfillerAddress = await fulfiller.getAddress();
+    const fulfillerAddress =
+      !!this.smartAccount && !!this.smartAccount.account
+        ? this.smartAccount.account.address
+        : await fulfiller.getAddress();
 
     const allOffererOperators = fulfillOrderDetails.map(
       ({ order }) =>

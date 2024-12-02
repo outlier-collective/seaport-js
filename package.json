@@ -34,7 +34,9 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "ethers": "^6.9.0",
-    "merkletreejs": "^0.4.0"
+    "merkletreejs": "^0.4.0",
+    "permissionless": "^0.2.20",
+    "viem": "^2.21.51"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
