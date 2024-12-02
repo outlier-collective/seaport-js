@@ -857,7 +857,9 @@ export class Seaport {
 
     const fulfiller = await this._getSigner(accountAddress);
 
-    const fulfillerAddress = await fulfiller.getAddress();
+    const fulfillerAddress = !!this.smartAccount?.account
+      ? this.smartAccount.account.address
+      : await fulfiller.getAddress();
 
     const offererOperator =
       this.config.conduitKeyToConduit[orderParameters.conduitKey];
@@ -1013,7 +1015,9 @@ export class Seaport {
 
     const fulfiller = await this._getSigner(accountAddress);
 
-    const fulfillerAddress = await fulfiller.getAddress();
+    const fulfillerAddress = !!this.smartAccount?.account
+      ? this.smartAccount.account.address
+      : await fulfiller.getAddress();
 
     const allOffererOperators = fulfillOrderDetails.map(
       ({ order }) =>
