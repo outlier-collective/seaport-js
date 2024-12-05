@@ -369,7 +369,7 @@ export class Seaport {
         ? fees?.map((fee) =>
             feeToConsiderationItem({
               fee,
-              token: currencies[0]!.token,
+              token: currencies[0].token,
               baseAmount: totalCurrencyAmount.startAmount,
               baseEndAmount: totalCurrencyAmount.endAmount,
             }),
