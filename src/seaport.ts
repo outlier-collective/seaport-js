@@ -536,6 +536,19 @@ export class Seaport {
         primaryType: "OrderComponents",
         message: orderComponents,
       });
+
+      // For Light Account signatures
+      const r = signature.slice(2, 66);
+      const s = signature.slice(66, 130);
+      // Light Accounts typically use 1 or 0 for v value
+      const v = parseInt(signature.slice(130), 16);
+      // Convert to standard v value (27 or 28)
+      const standardV = v + 27;
+      const vHex = standardV.toString(16);
+      signature = `0x${r}${s}${vHex}`;
+
+      console.log("signature", signature);
+
       const address = await recoverTypedDataAddress({
         domain: domainData,
         types: EIP_712_ORDER_TYPE,
@@ -543,6 +556,7 @@ export class Seaport {
         message: orderComponents,
         signature: signature as Hex,
       });
+      console.log("signing address", this.smartAccount.account.address);
       console.log("Recovered address", address);
     } else {
       const signer = await this._getSigner(accountAddress);
