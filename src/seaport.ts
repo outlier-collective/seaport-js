@@ -536,6 +536,7 @@ export class Seaport {
         primaryType: "OrderComponents",
         message: orderComponents,
       });
+      signature = ethers.Signature.from(signature).serialized;
     } else {
       const signer = await this._getSigner(accountAddress);
       signature = await signer.signTypedData(
