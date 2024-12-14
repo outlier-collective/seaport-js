@@ -545,11 +545,6 @@ export class Seaport {
       );
     }
 
-    // Use EIP-2098 compact signatures to save gas.
-    if (signature.length === 132) {
-      signature = ethers.Signature.from(signature).compactSerialized;
-    }
-
     return signature;
   }
 
