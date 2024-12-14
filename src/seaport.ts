@@ -536,7 +536,6 @@ export class Seaport {
         primaryType: "OrderComponents",
         message: orderComponents,
       });
-      signature = ethers.Signature.from(signature).serialized;
     } else {
       const signer = await this._getSigner(accountAddress);
       signature = await signer.signTypedData(
@@ -545,9 +544,6 @@ export class Seaport {
         orderComponents,
       );
     }
-
-    console.log("package sig", signature);
-    console.log("domain data", domainData);
 
     // Use EIP-2098 compact signatures to save gas.
     if (signature.length === 132) {
