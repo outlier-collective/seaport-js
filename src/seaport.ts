@@ -72,7 +72,7 @@ import {
   DomainRegistry__factory,
   Seaport__factory,
 } from "./typechain-types";
-import { Hex } from "viem";
+import { Hex, recoverTypedDataAddress } from "viem";
 import { SmartAccountClient } from "permissionless";
 
 export class Seaport {
@@ -536,6 +536,14 @@ export class Seaport {
         primaryType: "OrderComponents",
         message: orderComponents,
       });
+      const address = await recoverTypedDataAddress({
+        domain: domainData,
+        types: EIP_712_ORDER_TYPE,
+        primaryType: "OrderComponents",
+        message: orderComponents,
+        signature: signature as Hex,
+      });
+      console.log("Recovered address", address);
     } else {
       const signer = await this._getSigner(accountAddress);
       signature = await signer.signTypedData(
