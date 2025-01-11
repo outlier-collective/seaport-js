@@ -193,7 +193,6 @@ export class Seaport {
     exactApproval?: boolean,
   ): Promise<OrderUseCase<CreateOrderAction>> {
     const signer = await this._getSigner(accountAddress);
-    console.log("got signer");
 
     let offerer = accountAddress;
     if (!offerer) {
@@ -204,16 +203,12 @@ export class Seaport {
       }
     }
 
-    console.log("got offerer");
-
     const { orderComponents, approvalActions } = await this._formatOrder(
       signer,
       offerer,
       Boolean(exactApproval),
       input,
     );
-
-    console.log("formatted order");
 
     const createOrderAction = {
       type: "create",
@@ -229,8 +224,6 @@ export class Seaport {
         };
       },
     } as const;
-
-    console.log("got create order action");
 
     const actions = [...approvalActions, createOrderAction] as const;
 
