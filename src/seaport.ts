@@ -919,8 +919,6 @@ export class Seaport {
 
     const isRecipientSelf = recipientAddress === ethers.ZeroAddress;
 
-    console.log("extraData", extraData);
-
     // We use basic fulfills as they are more optimal for simple and "hot" use cases
     // We cannot use basic fulfill if user is trying to partially fill though.
     if (
@@ -929,7 +927,6 @@ export class Seaport {
       shouldUseBasicFulfill(sanitizedOrder.parameters, totalFilled) &&
       extraData === "0x"
     ) {
-      console.log("using basic order");
       // TODO: Use fulfiller proxy if there are approvals needed directly, but none needed for proxy
       return fulfillBasicOrder(
         {
@@ -949,8 +946,6 @@ export class Seaport {
         exactApproval,
       );
     }
-
-    console.log("using standard order");
 
     // Else, we fallback to the standard fulfill order
     return fulfillStandardOrder(

@@ -444,9 +444,7 @@ export function fulfillStandardOrder(
   const isGift = recipientAddress !== ethers.ZeroAddress;
 
   const useAdvanced =
-    Boolean(unitsToFill) || hasCriteriaItems || isGift || extraData;
-
-  console.log("use advanced", useAdvanced);
+    Boolean(unitsToFill) || hasCriteriaItems || isGift || !!extraData;
 
   const orderAccountingForTips: OrderStruct = {
     ...order,
