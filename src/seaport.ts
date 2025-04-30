@@ -919,6 +919,8 @@ export class Seaport {
 
     const isRecipientSelf = recipientAddress === ethers.ZeroAddress;
 
+    console.log("extraData", extraData);
+
     // We use basic fulfills as they are more optimal for simple and "hot" use cases
     // We cannot use basic fulfill if user is trying to partially fill though.
     if (
