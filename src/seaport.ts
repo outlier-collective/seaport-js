@@ -924,9 +924,9 @@ export class Seaport {
     if (
       !unitsToFill &&
       isRecipientSelf &&
-      shouldUseBasicFulfill(sanitizedOrder.parameters, totalFilled) &&
-      extraData === "0x"
+      shouldUseBasicFulfill(sanitizedOrder.parameters, totalFilled)
     ) {
+      console.log("basic fulfill");
       // TODO: Use fulfiller proxy if there are approvals needed directly, but none needed for proxy
       return fulfillBasicOrder(
         {
@@ -946,6 +946,8 @@ export class Seaport {
         exactApproval,
       );
     }
+
+    console.log("advanced fulfill");
 
     // Else, we fallback to the standard fulfill order
     return fulfillStandardOrder(
