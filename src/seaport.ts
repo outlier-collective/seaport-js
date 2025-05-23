@@ -100,7 +100,7 @@ export class Seaport {
    * @param considerationConfig - A config to provide flexibility in the usage of Seaport
    */
   public constructor(
-    providerOrSigner: JsonRpcProvider | Signer,
+    providerOrSigner: JsonRpcProvider | JsonRpcSigner,
     smartAccount?: SmartAccountClient,
     {
       overrides,
