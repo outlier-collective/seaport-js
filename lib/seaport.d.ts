@@ -1,4 +1,4 @@
-import { BigNumberish, Overrides, JsonRpcProvider, Signer } from "ethers";
+import { BigNumberish, Overrides, JsonRpcProvider, JsonRpcSigner } from "ethers";
 import type { SeaportConfig, CreateOrderAction, CreateOrderInput, ExchangeAction, InputCriteria, Order, OrderComponents, OrderStatus, OrderUseCase, OrderWithCounter, TipInputItem, MatchOrdersFulfillment, CreateBulkOrdersAction, SeaportContract } from "./types";
 import { ContractMethodReturnType, TransactionMethods } from "./utils/usecase";
 import { DomainRegistry } from "./typechain-types";
@@ -16,7 +16,7 @@ export declare class Seaport {
      * @param providerOrSigner - The provider or signer to use for web3-related calls
      * @param considerationConfig - A config to provide flexibility in the usage of Seaport
      */
-    constructor(providerOrSigner: JsonRpcProvider | Signer, smartAccount?: SmartAccountClient, { overrides, ascendingAmountFulfillmentBuffer, balanceAndApprovalChecksOnOrderCreation, conduitKeyToConduit, }?: SeaportConfig);
+    constructor(providerOrSigner: JsonRpcProvider | JsonRpcSigner, smartAccount?: SmartAccountClient, { overrides, ascendingAmountFulfillmentBuffer, balanceAndApprovalChecksOnOrderCreation, conduitKeyToConduit, }?: SeaportConfig);
     /**
      * Returns a use case that will create an order.
      * The use case will contain the list of actions necessary to finish creating an order.
